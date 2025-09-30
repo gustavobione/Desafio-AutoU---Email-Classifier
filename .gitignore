@@ -1,0 +1,41 @@
+# Arquivo .gitignore na raiz do projeto
+
+# Geral (Sistema Operacional e Editores de Código)
+.DS_Store
+.vscode/
+.idea/
+
+# Backend (Python / FastAPI)
+# ---------------------------------
+# Ambiente virtual
+backend/venv/
+backend/.venv/
+
+# Cache do Python
+backend/__pycache__/
+backend/app/__pycache__/
+
+# Arquivos de variáveis de ambiente (SEGURANÇA!)
+backend/.env
+
+# Frontend (React / Node.js)
+# ---------------------------------
+# Dependências
+frontend/node_modules/
+
+# Build da aplicação
+frontend/dist/
+frontend/build/
+
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Arquivos de variáveis de ambiente
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# Arquivos de teste
+frontend/coverage/
