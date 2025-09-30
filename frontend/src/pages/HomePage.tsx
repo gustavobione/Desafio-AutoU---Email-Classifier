@@ -1,18 +1,19 @@
-// Importações necessárias do React e da biblioteca de ícones
+// Importações do React e dos ícones
 import { useState } from "react";
-import { Loader2, MailCheck, MailWarning } from "lucide-react"; // Ícones de spinner e para os resultados
+import { Loader2, MailCheck, MailWarning } from "lucide-react";
 
-// Importação dos componentes de UI que você instalou do shadcn/ui
+// Importação dos componentes de UI do shadcn/ui
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-// Define a "forma" (type) do objeto de resultado para o TypeScript
-type AnalysisResult = {
-  category: string;
-  suggested_response: string;
-};
+// --- Importa a função e o tipo do nosso serviço ---
+// Agora não importa se o serviço está a simular ou a fazer uma chamada real,
+// o componente funciona da mesma maneira.
+import { analyzeEmail } from "@/services/apiService";
+import type { AnalysisResult } from "@/services/apiService";
+
 
 function HomePage() {
   // --- Estados do Componente ---
@@ -34,24 +35,14 @@ function HomePage() {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/classify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: inputText }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Ocorreu um erro no servidor.");
-      }
-
-      const data: AnalysisResult = await response.json();
+      // Chama a função do nosso serviço.
+      // Neste momento, ela está a usar la lógica simulada.
+      const data = await analyzeEmail(inputText);
       setResult(data);
 
     } catch (err: any) {
-      setError(err.message || "Falha ao conectar com a API. Verifique se o backend está rodando.");
+      // Apanha o erro (seja ele real ou simulado) e exibe-o.
+      setError(err.message);
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -60,11 +51,9 @@ function HomePage() {
 
   // --- Renderização do Componente ---
   return (
-    // Container principal com fundo suave e centralização
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-2xl space-y-8">
         
-        {/* Cabeçalho da aplicação */}
         <header className="text-center">
           <h1 className="text-4xl font-bold text-primary-700 dark:text-primary-400">
             AutoU Email Classifier
@@ -74,7 +63,6 @@ function HomePage() {
           </p>
         </header>
 
-        {/* Card de Entrada de Dados */}
         <Card className="w-full shadow-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
           <CardHeader>
             <CardTitle className="text-2xl text-slate-800 dark:text-slate-200">Analisar Novo Email</CardTitle>
@@ -106,7 +94,6 @@ function HomePage() {
           </CardContent>
         </Card>
 
-        {/* Seção de Erro (condicional) */}
         {error && (
             <Alert variant="destructive" className="animate-fade-in">
                 <AlertTitle>Ocorreu um Erro</AlertTitle>
@@ -114,7 +101,6 @@ function HomePage() {
             </Alert>
         )}
 
-        {/* Seção de Resultado (condicional) */}
         {result && (
           <Card className="w-full shadow-lg animate-fade-in border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
             <CardHeader>
@@ -150,4 +136,3 @@ function HomePage() {
 }
 
 export default HomePage;
-
