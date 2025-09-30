@@ -1,0 +1,12 @@
+# Framework e Servidor
+fastapi
+uvicorn[standard]
+
+# Comunicação com a API do Gemini
+google-generativeai
+
+# Gerenciamento de variáveis de ambiente (.env)
+python-dotenv
+
+# Para upload de arquivos (opcional, mas bom manter)
+python-multipart
