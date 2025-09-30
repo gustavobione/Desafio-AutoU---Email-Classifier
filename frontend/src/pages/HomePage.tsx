@@ -1,15 +1,14 @@
 // Importações necessárias do React e da biblioteca de ícones
 import { useState } from "react";
-import { Loader2 } from "lucide-react"; // Ícone de spinner para o estado de carregamento
+import { Loader2, MailCheck, MailWarning } from "lucide-react"; // Ícones de spinner e para os resultados
 
 // Importação dos componentes de UI que você instalou do shadcn/ui
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Define a "forma" (type) do objeto de resultado para o TypeScript
-// Isso ajuda a evitar erros e melhora o autocompletar do editor.
 type AnalysisResult = {
   category: string;
   suggested_response: string;
@@ -17,23 +16,17 @@ type AnalysisResult = {
 
 function HomePage() {
   // --- Estados do Componente ---
-  // Guarda o texto do email digitado pelo usuário
   const [inputText, setInputText] = useState<string>("");
-  // Guarda o resultado da análise vindo da API
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  // Controla se a aplicação está esperando uma resposta da API
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  // Guarda qualquer mensagem de erro que possa ocorrer
   const [error, setError] = useState<string>("");
 
   // --- Lógica de Chamada da API ---
   const handleAnalyseClick = async () => {
-    // 1. Reseta os estados antes de uma nova chamada
     setIsLoading(true);
     setError("");
     setResult(null);
 
-    // Validação para garantir que o texto não está vazio
     if (!inputText.trim()) {
       setError("Por favor, insira o texto do email para análise.");
       setIsLoading(false);
@@ -41,65 +34,68 @@ function HomePage() {
     }
 
     try {
-      // 2. Faz a requisição POST para o seu backend FastAPI
       const response = await fetch('http://127.0.0.1:8000/classify', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        // Envia o texto dentro de um objeto JSON, como definido no models.py
         body: JSON.stringify({ text: inputText }),
       });
 
-      // 3. Trata respostas de erro do servidor (ex: 400, 500)
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.detail || "Ocorreu um erro no servidor.");
       }
 
-      // 4. Se a resposta for bem-sucedida, atualiza o estado com os dados
       const data: AnalysisResult = await response.json();
       setResult(data);
 
     } catch (err: any) {
-      // 5. Captura erros de rede ou da lógica acima e atualiza o estado de erro
       setError(err.message || "Falha ao conectar com a API. Verifique se o backend está rodando.");
       console.error(err);
     } finally {
-      // 6. Garante que o estado de 'loading' seja desativado ao final,
-      //    não importa se a requisição deu certo ou errado.
       setIsLoading(false);
     }
   };
 
-  // --- Renderização do Componente (O que aparece na tela) ---
+  // --- Renderização do Componente ---
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
-      <div className="w-full max-w-2xl">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800">AutoU Email Classifier</h1>
-          <p className="text-lg text-gray-600 mt-2">
-            Cole um email abaixo para classificá-lo e receber uma sugestão de resposta usando IA.
+    // Container principal com fundo suave e centralização
+    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-2xl space-y-8">
+        
+        {/* Cabeçalho da aplicação */}
+        <header className="text-center">
+          <h1 className="text-4xl font-bold text-primary-700 dark:text-primary-400">
+            AutoU Email Classifier
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 mt-2">
+            Otimize seu fluxo de trabalho com o poder da Inteligência Artificial.
           </p>
         </header>
 
-        <Card className="w-full shadow-lg">
+        {/* Card de Entrada de Dados */}
+        <Card className="w-full shadow-lg border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
           <CardHeader>
-            <CardTitle>Analisar Novo Email</CardTitle>
+            <CardTitle className="text-2xl text-slate-800 dark:text-slate-200">Analisar Novo Email</CardTitle>
+            <CardDescription>
+              Cole o conteúdo do email abaixo e clique em analisar.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid w-full gap-4">
               <Textarea
-                placeholder="Digite ou cole o conteúdo do email aqui..."
+                placeholder="Ex: 'Olá, gostaria de saber o status do meu pedido 12345...'"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 rows={10}
                 disabled={isLoading}
+                className="bg-slate-50 dark:bg-slate-800 focus:ring-primary-500"
               />
-              <Button onClick={handleAnalyseClick} disabled={isLoading}>
+              <Button onClick={handleAnalyseClick} disabled={isLoading} size="lg">
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Analisando...
                   </>
                 ) : (
@@ -110,30 +106,38 @@ function HomePage() {
           </CardContent>
         </Card>
 
-        {/* Seção de Erro (só aparece se houver um erro) */}
+        {/* Seção de Erro (condicional) */}
         {error && (
-            <Alert variant="destructive" className="mt-6">
-                <AlertTitle>Erro na Análise</AlertTitle>
+            <Alert variant="destructive" className="animate-fade-in">
+                <AlertTitle>Ocorreu um Erro</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
             </Alert>
         )}
 
-        {/* Seção de Resultado (só aparece se houver um resultado) */}
+        {/* Seção de Resultado (condicional) */}
         {result && (
-          <Card className="mt-6 w-full shadow-lg animate-fade-in">
+          <Card className="w-full shadow-lg animate-fade-in border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
             <CardHeader>
-              <CardTitle>Resultado da Análise</CardTitle>
+              <CardTitle className="text-2xl text-slate-800 dark:text-slate-200">Resultado da Análise</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div>
-                <h3 className="font-semibold text-lg">Categoria</h3>
-                <p className={`font-bold text-xl ${result.category === 'Produtivo' ? 'text-blue-600' : 'text-green-600'}`}>
+                <h3 className="font-semibold text-lg text-gray-700 dark:text-gray-300 mb-2">Categoria</h3>
+                <span className={`inline-flex items-center px-3 py-1 rounded-full font-bold text-lg
+                  ${result.category === 'Produtivo' 
+                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' 
+                    : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}`
+                }>
+                  {result.category === 'Produtivo' 
+                    ? <MailCheck className="mr-2 h-5 w-5" /> 
+                    : <MailWarning className="mr-2 h-5 w-5" />
+                  }
                   {result.category}
-                </p>
+                </span>
               </div>
               <div>
-                <h3 className="font-semibold text-lg">Resposta Sugerida</h3>
-                <p className="text-gray-700 bg-gray-100 p-4 rounded-md whitespace-pre-wrap">
+                <h3 className="font-semibold text-lg text-gray-700 dark:text-gray-300 mb-2">Resposta Sugerida</h3>
+                <p className="text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 p-4 rounded-md whitespace-pre-wrap border border-slate-200 dark:border-slate-700">
                   {result.suggested_response}
                 </p>
               </div>
@@ -146,3 +150,4 @@ function HomePage() {
 }
 
 export default HomePage;
+
