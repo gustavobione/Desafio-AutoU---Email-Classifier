@@ -2,6 +2,7 @@
 
 // ALTERAÇÃO 1: Trocamos 'require' por 'import' para ser compatível com Vite.
 import defaultTheme from 'tailwindcss/defaultTheme';
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
     darkMode: 'class',
@@ -453,5 +454,5 @@ export default {
         }
     },
     // ALTERAÇÃO 2: Adicionamos o plugin que o shadcn/ui precisa para as animações.
-    plugins: [require("tailwindcss-animate")],
+    plugins: [tailwindcssAnimate],
 };
