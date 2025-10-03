@@ -3,8 +3,9 @@ from pydantic import BaseModel
 class EmailRequest(BaseModel):
     text: str
 
-# ATUALIZAÇÃO: Adicionado o campo 'improvement_suggestion'
+# ATUALIZAÇÃO: O modelo de resposta agora é muito mais detalhado.
 class AnalysisResponse(BaseModel):
+    department: str
     status: str
     reason: str
-    improvement_suggestion: str
+    rewritten_email: str
