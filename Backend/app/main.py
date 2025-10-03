@@ -1,6 +1,5 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File # --- 1. IMPORTAÇÕES ADICIONADAS ---
 from fastapi.middleware.cors import CORSMiddleware
-# --- 1. IMPORTAÇÃO ADICIONADA ---
 from fastapi.concurrency import run_in_threadpool
 from . import models, services
 
@@ -24,13 +23,9 @@ async def classify_email_endpoint(request: models.EmailRequest):
         raise HTTPException(status_code=400, detail="O texto do email não pode estar vazio.")
     
     try:
-        # --- 2. ALTERAÇÃO PRINCIPAL ---
-        # Em vez de chamar a função diretamente, usamos o run_in_threadpool
-        # para executá-la numa thread separada e usamos 'await' para esperar pelo resultado.
         result = await run_in_threadpool(services.get_gemini_response, request.text)
 
     except Exception as e:
-        # Captura qualquer erro inesperado durante a execução da thread
         print(f"Erro inesperado no endpoint: {e}")
         raise HTTPException(status_code=500, detail="Ocorreu um erro interno no servidor.")
 
@@ -39,6 +34,43 @@ async def classify_email_endpoint(request: models.EmailRequest):
 
     return result
 
+
+# --- 2. NOVO ENDPOINT ADICIONADO AQUI ---
+@app.post("/classify-file", response_model=models.AnalysisResponse)
+async def classify_file_endpoint(file: UploadFile = File(...)):
+    """
+    Recebe um ficheiro (.txt ou .pdf), extrai o seu texto e o classifica.
+    """
+    # Lê os bytes do ficheiro de forma assíncrona
+    file_contents = await file.read()
+
+    try:
+        # Executa a extração de texto (que pode ser lenta) num threadpool
+        extracted_text = await run_in_threadpool(
+            services.extract_text_from_file, 
+            file_contents=file_contents, 
+            content_type=file.content_type
+        )
+    except ValueError as e:
+        # Captura os erros de formato inválido ou falha de leitura do PDF do nosso service
+        raise HTTPException(status_code=400, detail=str(e))
+    
+    if not extracted_text or not extracted_text.strip():
+        raise HTTPException(status_code=400, detail="O ficheiro está vazio ou não contém texto extraível.")
+    
+    # Reutiliza a mesma lógica do endpoint de texto para chamar o Gemini
+    try:
+        result = await run_in_threadpool(services.get_gemini_response, extracted_text)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Ocorreu um erro interno no servidor ao contactar a IA.")
+
+    if result["status"] == "Erro":
+        raise HTTPException(status_code=500, detail=result["reason"])
+
+    return result
+
+
 @app.get("/")
 def read_root():
-    return {"status": "API online e atualizada!"}
+    return {"status": "API online e atualizada com upload de ficheiros!"}
+
