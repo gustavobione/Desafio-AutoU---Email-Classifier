@@ -46,3 +46,33 @@ export const analyzeEmail = async (emailText: string): Promise<AnalysisResult> =
     throw new Error('Não foi possível conectar à API. Verifique se o backend está a correto e tente novamente.');
   }
 };
+
+// --- NOVA FUNÇÃO PARA ANALISAR FICHEIROS ---
+const API_URL_FILE = 'http://127.0.0.1:8000/classify-file';
+
+/**
+ * Envia um ficheiro para o backend para análise.
+ * @param file - O ficheiro (txt ou pdf) a ser analisado.
+ * @returns Uma Promise que resolve com o objeto AnalysisResult.
+ */
+export const analyzeFile = async (file: File): Promise<AnalysisResult> => {
+  // Para enviar ficheiros, usamos FormData em vez de JSON.
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await fetch(API_URL_FILE, {
+      method: 'POST',
+      body: formData, // Não definimos o 'Content-Type', o navegador fá-lo-á por nós.
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Ocorreu um erro no servidor ao processar o ficheiro.');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Falha no upload do ficheiro:', error);
+    throw new Error('Não foi possível enviar o ficheiro. Verifique o backend e o tamanho do ficheiro.');
+  }
+};
