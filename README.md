@@ -78,7 +78,7 @@ Siga os passos abaixo para configurar e executar o projeto na sua máquina.
 
 ### **1. Clone o Repositório**
 ```bash
-git clone [https://github.com/SEU_USER/SEU_REPOSITORIO.git](https://github.com/SEU_USER/SEU_REPOSITORIO.git)
+git clone [https://github.com/gustavobione/Desafio-AutoU---Email-Classifier.git](https://github.com/gustavobione/Desafio-AutoU---Email-Classifier.git)
 cd SEU_REPOSITORIO
 ````
 
