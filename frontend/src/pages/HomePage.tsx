@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ChangeEvent } from "react";
-import { Loader2, MailCheck, MailWarning, FileText, Copy, Check } from "lucide-react"; // Adicionados Copy e Check
+import { Loader2, MailCheck, MailWarning, FileText, Copy, Check, Zap, Coffee } from "lucide-react"; // Adicionados Copy e Check
 
 // Importação dos componentes de UI
 import { Button } from "@/components/ui/button";
@@ -124,13 +124,28 @@ function HomePage() {
 
         {error && <Alert variant="destructive" className="animate-fade-in"><AlertTitle>Ocorreu um Erro</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
 
-        {/* --- ALTERAÇÃO: Removido o efeito de transparência para um fundo branco sólido --- */}
         {result && (
           <Card className="w-full shadow-xl animate-fade-in border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
             <CardHeader>
               <CardTitle className="text-2xl text-slate-800 dark:text-slate-200">Resultado da Análise</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+
+              <div className="text-center p-4 rounded-lg bg-black/5 dark:bg-white/5">
+                <h3 className="font-semibold text-gray-800 dark:text-gray-300 mb-2 text-sm uppercase tracking-wider">Classificação Principal</h3>
+                <span className={`inline-flex items-center px-4 py-2 rounded-full font-bold text-xl
+                  ${result.main_category === 'Produtivo' 
+                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' 
+                    : 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200'}`
+                }>
+                  {result.main_category === 'Produtivo' 
+                    ? <Zap className="mr-2 h-6 w-6" /> 
+                    : <Coffee className="mr-2 h-6 w-6" />
+                  }
+                  {result.main_category}
+                </span>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <h3 className="font-semibold text-gray-800 dark:text-gray-300 mb-2">Status</h3>

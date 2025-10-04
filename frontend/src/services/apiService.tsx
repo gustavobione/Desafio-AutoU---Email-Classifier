@@ -3,6 +3,7 @@
  * correspondendo ao modelo AnalysisResponse final do backend.
  */
 export type AnalysisResult = {
+  main_category: string;
   department: string;
   status: string;
   reason: string;
