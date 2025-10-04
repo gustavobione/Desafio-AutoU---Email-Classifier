@@ -3,8 +3,8 @@ from pydantic import BaseModel
 class EmailRequest(BaseModel):
     text: str
 
-# ATUALIZAÇÃO: O modelo de resposta agora é muito mais detalhado.
 class AnalysisResponse(BaseModel):
+    main_category: str
     department: str
     status: str
     reason: str
