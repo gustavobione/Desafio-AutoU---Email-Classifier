@@ -1,7 +1,3 @@
-/**
- * Define a "forma" (type) do objeto de resultado que esperamos da API,
- * correspondendo ao modelo AnalysisResponse final do backend.
- */
 export type AnalysisResult = {
   main_category: string;
   department: string;
@@ -11,7 +7,7 @@ export type AnalysisResult = {
 };
 
 // --- FUNÇÃO PARA ANALISAR TEXTO ---
-const API_URL_TEXT = 'http://127.0.0.1:8000/classify';
+const API_URL_TEXT = '/api/classify';
 
 export const analyzeEmail = async (emailText: string): Promise<AnalysisResult> => {
   try {
@@ -33,7 +29,7 @@ export const analyzeEmail = async (emailText: string): Promise<AnalysisResult> =
 
 
 // --- FUNÇÃO PARA ANALISAR FICHEIROS ---
-const API_URL_FILE = 'http://127.0.0.1:8000/classify-file';
+const API_URL_FILE = '/api/classify-file';
 
 export const analyzeFile = async (file: File): Promise<AnalysisResult> => {
   const formData = new FormData();
